@@ -1,0 +1,26 @@
+DATAS SEGMENT
+INPUT DB 'Input1.txt'
+OUTPUT DB 'Output1.txt'
+DATAS ENDS
+
+CODES SEGMENT
+ASSUME CS:CODES,DS:DATAS
+START:
+    ; create the file
+    MOV AX,DATAS
+    MOV DS,AX
+    LEA DX,INPUT
+    MOV CX,00H
+    MOV AH,3CH
+    INT 21H
+
+    ;close file
+    MOV BX, AX
+    MOV AH,3EH
+    INT 21H
+
+    ;return
+    MOV AX,4C00H
+    INT 21H
+CODES ENDS
+END START
