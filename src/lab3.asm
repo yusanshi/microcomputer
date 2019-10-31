@@ -33,7 +33,7 @@ start:
     ; scan string in buffer to array
     ; ascii: '\n':10, '-':45
     xor bx, bx
-    xor dx, dx ;dh: number count  dl: is_negative
+    xor dx, dx ; dh: number count  dl: is_negative
     xor cx, cx ; current number
     scan:
         mov al, buffer[bx]
