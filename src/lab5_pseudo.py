@@ -1,17 +1,22 @@
+is_assembling = 0
 for char in buffer:
     if char >= '0' and char <= '9':
         assemble the number
+        is_assembling = 1
+        break
     else:
-        finish assembling
-        push assembled number to opnd stack
-        reset to prepare for assembling
+        if is_assembling == 1:
+            opnd.push(assembled_number)
+            reset to prepare for assembling
+            is_assembling = 0
         
-    if char == 0:
+    if char == 13:
         break
     
-    temp = opnd.top()
+    temp = optr.top()
     if char == '(':
         optr.push(char)
+        break
     
     elif char == ')':
         if temp == '(':
@@ -21,7 +26,8 @@ for char in buffer:
             opnd.pop(b)
             opnd.pop(a)
             opnd.push((a temp b))
-            index - 1 
+            index - 1
+        break 
     elif char =='+' or char == '-':
         if temp == '(':
             optr.push(char)
@@ -31,6 +37,7 @@ for char in buffer:
             opnd.pop(a)
             opnd.push((a temp b))
             index - 1
+        break
     else:
         jump to error
 
