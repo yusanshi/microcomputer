@@ -1,5 +1,5 @@
 emu8086/
 *.exe
 *.obj
-MyBuild.ink
-emu8086.ink
+MyBuild.lnk
+emu8086.lnk
