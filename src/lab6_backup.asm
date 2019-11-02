@@ -48,6 +48,7 @@ print_fpu_top macro
         putc
         skip_putc:
         pop ax
+        
 
         and al, 00001111b
         add al, 48
@@ -67,6 +68,7 @@ print_fpu_top macro
         will_putc2:
         putc
         skip_putc2:
+
         loop print_a_bit_integer
 
     mov al, '.'
@@ -90,24 +92,60 @@ print_fpu_top macro
     popa
 endm
 
-input_float_number_and_saved_to_fpu_top macro
+get_tbyte_value_from_string macro src, dest
     pusha
+
+    popa
+endm
+
+input_float_number_and_saved_to_fpu_top macro
+    local divide_one_time
+    pusha
+
+    ; input string containing entire number string to input_buffer
     mov di, offset input_buffer
     gets
-    atof
-    mov di, offset general_tbyte_temp
-    sefpa
-    fld general_tbyte_temp
+    ; split them into integer_buffer, and fraction_buffer and push fraction width (if no dot, firstly insert '.0' at the end)
+
+    ; parse integer_buffer into integer_tbyte_temp, fraction_buffer into fraction_tbyte_temp
+    get_tbyte_value_from_string integer_buffer, integer_tbyte_temp
+    get_tbyte_value_from_string fraction_buffer, fraction_tbyte_temp
+
+    ; divide fraction_tbyte_temp with 10^(width poped)
+    pop cx
+    divide_one_time:
+        fld fraction_tbyte_temp
+        fld factor_1
+        fdiv
+        fstp fraction_tbyte_temp
+        loop divide_one_time
+
+    fld integer_tbyte_temp
+    fld fraction_tbyte_temp
+    fadd
     popa
 endm
 
 .data 
-    x tbyte 0
-    a1 tbyte 0
-    a2 tbyte 0
-    a3 tbyte 0
+    x_error_msg db "Error: x<0!",0
+    x tbyte 6.0
+    a1 tbyte 7.0
+    a2 tbyte 1.0
+    a3 tbyte 2.0
+    x_dd dd 6.0
+    a1_dd dd 7.0
+    a2_dd dd 1.0
+    a3_dd dd 2.0
     factor_6 tbyte 1000000.0
+    factor_1 tbyte 10.0
+    result tbyte 0
     input_buffer db 36 dup(0)
+    integer_buffer db 16 dup(0)
+    fraction_buffer db 16 dup(0)
+    integer_tbyte_temp tbyte 0
+    fraction_tbyte_temp tbyte 0
+    integer_dw_temp dw 0
+    fraction_dw_temp dw 0
     general_tbyte_temp tbyte 0
 
 .code
@@ -120,22 +158,27 @@ start:
     printf
 	db	"Input x: ",0
     input_float_number_and_saved_to_fpu_top
-    fstp x
+    ;fstp x
+    putcr
 
     printf
 	db	"Input a1: ",0
-    input_float_number_and_saved_to_fpu_top
-    fstp a1
+    ;input_float_number_and_saved_to_fpu_top
+    ;fstp a1
+    putcr
 
     printf
 	db	"Input a2: ",0
-    input_float_number_and_saved_to_fpu_top
-    fstp a2
+    ;input_float_number_and_saved_to_fpu_top
+    ;fstp a2
+    putcr
 
     printf
 	db	"Input a3: ",0
-    input_float_number_and_saved_to_fpu_top
-    fstp a3
+    ;input_float_number_and_saved_to_fpu_top
+    ;fstp a3
+    putcr
+
 
     fld x ; x
     ftst ; compare with 0
@@ -156,14 +199,14 @@ start:
     fadd  ; a3*sin(x) + a2*log2(x) + a1*sqrt(x)
 
     printf
-	db	"The result is: ", 0
+	db	"The result is: ",0
 
     print_fpu_top
 
     jmp no_error
     error:
-    printf
-    db "Error: x<0!",0
+    mov di, offset x_error_msg
+    puts
 
     no_error:
     mov ax, 4c00h ; exit to operating system.

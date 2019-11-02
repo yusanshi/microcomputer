@@ -1,0 +1,13 @@
+StdGrp		group	stdlib, stddata
+;
+stddata		segment	para public 'sldata'
+stddata		ends
+stdlib		segment	para public 'slcode'
+stdlib		ends
+
+
+include		stdout.a
+include		stdin.a
+include		fp.a
+
+		
